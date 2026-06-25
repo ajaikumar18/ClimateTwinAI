@@ -1,18 +1,7 @@
 import { useState } from "react";
 import Map, { Marker, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-
-interface ClimateRecord {
-  id: number;
-  latitude: number;
-  longitude: number;
-  temperature: number;
-  humidity: number;
-  rainfall: number;
-  wind_speed: number;
-  source: string;
-  timestamp: string;
-}
+import type { ClimateRecord } from "../types/climate";
 
 interface Props {
   records: ClimateRecord[];

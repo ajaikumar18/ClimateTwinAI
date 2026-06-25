@@ -50,7 +50,7 @@ class Settings(BaseSettings):
 
     # ── PostgreSQL ───────────────────────────────────────────────
     POSTGRES_USER: str = "postgres"
-    POSTGRES_PASSWORD: str = "Anchal@18"
+    POSTGRES_PASSWORD: str = ""  # Set via .env — never hardcode credentials
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = "ClimateTwinAI"
@@ -95,6 +95,10 @@ class Settings(BaseSettings):
     # ── AI Config ────────────────────────────────────────────────
     AI_MODEL_PATH: str = "models/"
     AI_INFERENCE_TIMEOUT: int = 60
+
+    # ── IMD Data Ingestion ───────────────────────────────────────
+    IMD_DATA_DIR: str = "datasets/"
+    IMD_BULK_INSERT_BATCH_SIZE: int = 5000
 
     @field_validator("LOG_LEVEL")
     @classmethod
