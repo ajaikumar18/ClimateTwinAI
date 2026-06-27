@@ -13,6 +13,7 @@
     "axios": "^1.18.1",
     "cesium": "^1.142.0",
     "deck.gl": "^9.3.4",
+    "lucide-react": "^1.21.0",
     "maplibre-gl": "^5.24.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

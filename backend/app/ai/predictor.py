@@ -150,7 +150,10 @@ async def predict(
     # Forward-fill NaNs
     for col in range(raw_data.shape[1]):
         series = raw_data[:, col]
-        last = np.nanmean(series)  # fallback
+        if np.isnan(series).all():
+            last = 0.0
+        else:
+            last = np.nanmean(series)  # fallback
         for i in range(len(series)):
             if np.isnan(series[i]):
                 series[i] = last
