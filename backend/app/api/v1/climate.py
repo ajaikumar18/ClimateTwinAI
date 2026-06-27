@@ -152,9 +152,11 @@ async def create_climate_record(
     response_model=list[ClimateRecordResponse],
 )
 async def list_climate_records(
+    skip: int = Query(0, ge=0, description="Records to skip"),
+    limit: int = Query(1000, ge=1, le=10000, description="Max records to return"),
     db: AsyncSession = Depends(get_db),
 ):
-    return await get_all_records(db)
+    return await get_all_records(db, skip=skip, limit=limit)
 
 
 @router.get(

@@ -1,30 +1,25 @@
 import { useEffect, useState } from "react";
 import { getClimateRecords } from "../services/climateApi";
 import ClimateMap from "../components/ClimateMap";
+import ClimateChart from "../components/ClimateChart";
+import ForecastPanel from "../components/ForecastPanel";
 import type { ClimateRecord } from "../types/climate";
+import {
+  Thermometer,
+  CloudRain,
+  Droplets,
+  RadioTower,
+  MapPin,
+} from "lucide-react";
 
 export default function ClimateDashboard() {
   const [records, setRecords] = useState<ClimateRecord[]>([]);
   const [loading, setLoading] = useState(true);
-    const avgTemp =
-  records.length > 0
-    ? records.reduce((sum, r) => sum + r.temperature, 0) /
-      records.length
-    : 0;
+  const [selectedLocation, setSelectedLocation] = useState({
+    lat: 22.5,
+    lon: 79.0,
+  });
 
-const avgRain =
-  records.length > 0
-    ? records.reduce((sum, r) => sum + r.rainfall, 0) /
-      records.length
-    : 0;
-
-const avgHumidity =
-  records.length > 0
-    ? records.reduce((sum, r) => sum + r.humidity, 0) /
-      records.length
-    : 0;
-
-const totalStations = records.length;
   useEffect(() => {
     const fetchClimateData = async () => {
       try {
@@ -36,143 +31,134 @@ const totalStations = records.length;
         setLoading(false);
       }
     };
-
     fetchClimateData();
   }, []);
 
+  const avgTemp =
+    records.length > 0
+      ? records.reduce((sum, r) => sum + (r.temperature || 0), 0) /
+        records.filter((r) => r.temperature != null).length
+      : 0;
+
+  const avgRain =
+    records.length > 0
+      ? records.reduce((sum, r) => sum + (r.rainfall || 0), 0) /
+        records.filter((r) => r.rainfall != null).length
+      : 0;
+
+  const avgHumidity =
+    records.length > 0
+      ? records.reduce((sum, r) => sum + (r.humidity || 0), 0) /
+        records.filter((r) => r.humidity != null).length
+      : 0;
+
+  const totalStations = records.length;
+
+  const statCards = [
+    {
+      label: "Avg Temperature",
+      value: loading ? "—" : `${avgTemp.toFixed(1)}°C`,
+      icon: Thermometer,
+      color: "text-red-400",
+      bgColor: "bg-red-500/10",
+      cssClass: "stat-card-temp",
+    },
+    {
+      label: "Avg Rainfall",
+      value: loading ? "—" : `${avgRain.toFixed(1)} mm`,
+      icon: CloudRain,
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+      cssClass: "stat-card-rain",
+    },
+    {
+      label: "Avg Humidity",
+      value: loading ? "—" : `${avgHumidity.toFixed(1)}%`,
+      icon: Droplets,
+      color: "text-cyan-400",
+      bgColor: "bg-cyan-500/10",
+      cssClass: "stat-card-humidity",
+    },
+    {
+      label: "Active Stations",
+      value: loading ? "—" : totalStations.toLocaleString(),
+      icon: RadioTower,
+      color: "text-emerald-400",
+      bgColor: "bg-emerald-500/10",
+      cssClass: "stat-card-stations",
+    },
+  ];
+
   return (
-    <div
-      style={{
-        padding: "20px",
-        backgroundColor: "#0f172a",
-        color: "white",
-        minHeight: "100vh",
-      }}
-    >
-      <h1
-        style={{
-          textAlign: "center",
-          marginBottom: "10px",
-        }}
-      >
-        🌍 ClimateTwin AI
-      </h1>
-
-      <h2
-        style={{
-          textAlign: "center",
-          marginBottom: "30px",
-        }}
-      >
-        India Climate Digital Twin
-      </h2>
-
-      {loading ? (
-        <p>Loading climate data...</p>
-      ) : (
-        <><div
-  style={{
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "20px",
-    marginBottom: "25px",
-  }}
->
-  <div
-    style={{
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "12px",
-      textAlign: "center",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-    }}
-  >
-    <h3>🌡 Avg Temperature</h3>
-    <h1>{avgTemp.toFixed(1)}°C</h1>
-  </div>
-
-  <div
-    style={{
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "12px",
-      textAlign: "center",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-    }}
-  >
-    <h3>🌧 Avg Rainfall</h3>
-    <h1>{avgRain.toFixed(1)} mm</h1>
-  </div>
-
-  <div
-    style={{
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "12px",
-      textAlign: "center",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-    }}
-  >
-    <h3>💧 Avg Humidity</h3>
-    <h1>{avgHumidity.toFixed(1)}%</h1>
-  </div>
-
-  <div
-    style={{
-      background: "#1e293b",
-      padding: "20px",
-      borderRadius: "12px",
-      textAlign: "center",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-    }}
-  >
-    <h3>📡 Climate Stations</h3>
-    <h1>{totalStations}</h1>
-  </div>
-</div>
-          <ClimateMap records={records} />
-
-          <div style={{ marginTop: "30px" }}>
-            <h2>Climate Records</h2>
-
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                marginTop: "15px",
-              }}
-            >
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Latitude</th>
-                  <th>Longitude</th>
-                  <th>Temperature</th>
-                  <th>Humidity</th>
-                  <th>Rainfall</th>
-                  <th>Wind Speed</th>
-                  <th>Source</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {records.map((record) => (
-                  <tr key={record.id}>
-                    <td>{record.id}</td>
-                    <td>{record.latitude}</td>
-                    <td>{record.longitude}</td>
-                    <td>{record.temperature}°C</td>
-                    <td>{record.humidity}%</td>
-                    <td>{record.rainfall} mm</td>
-                    <td>{record.wind_speed} km/h</td>
-                    <td>{record.source}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div className="min-h-screen bg-[#030712] text-white">
+      <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
+        {/* ── Hero Section ─────────────────────── */}
+        <div className="animate-fade-in-up">
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                Climate Dashboard
+              </h1>
+              <p className="text-slate-500 mt-1">
+                Real-time climate intelligence across India • 5,600+ stations
+              </p>
+            </div>
+            {selectedLocation && (
+              <div className="glass-card-static px-4 py-2 flex items-center gap-2 text-sm">
+                <MapPin className="w-4 h-4 text-cyan-400" />
+                <span className="text-slate-400">Selected:</span>
+                <span className="font-semibold text-cyan-300">
+                  {selectedLocation.lat.toFixed(2)}°N,{" "}
+                  {selectedLocation.lon.toFixed(2)}°E
+                </span>
+              </div>
+            )}
           </div>
-        </>
-      )}
+        </div>
+
+        {/* ── Stat Cards ──────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {statCards.map((card, i) => (
+            <div
+              key={card.label}
+              className={`relative glass-card p-5 flex items-center gap-4 overflow-hidden animate-fade-in-up-delay-${i + 1} ${card.cssClass}`}
+            >
+              <div className={`${card.bgColor} p-3 rounded-xl ${card.color} icon-glow`}>
+                <card.icon size={22} />
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                  {card.label}
+                </p>
+                <h3 className="text-2xl font-bold text-white mt-0.5">
+                  {card.value}
+                </h3>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Map Section ─────────────────────── */}
+        <ClimateMap
+          onLocationSelect={(lat, lon) => setSelectedLocation({ lat, lon })}
+        />
+
+        {/* ── Analytics Section ────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+          <div className="animate-fade-in-up-delay-3">
+            <ClimateChart
+              lat={selectedLocation.lat}
+              lon={selectedLocation.lon}
+            />
+          </div>
+          <div className="animate-fade-in-up-delay-4">
+            <ForecastPanel
+              lat={selectedLocation.lat}
+              lon={selectedLocation.lon}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

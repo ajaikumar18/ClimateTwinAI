@@ -34,9 +34,14 @@ async def create_record(
 
 async def get_all_records(
     db: AsyncSession,
+    skip: int = 0,
+    limit: int = 1000,
 ):
     result = await db.execute(
         select(ClimateRecord)
+        .where(ClimateRecord.temperature.is_not(None))
+        .order_by(ClimateRecord.timestamp.desc())
+        .offset(skip).limit(limit)
     )
 
     return result.scalars().all()
@@ -60,7 +65,7 @@ async def get_records_by_region(
     lon_min: float,
     lat_max: float,
     lon_max: float,
-    limit: int = 1000,
+    limit: int = 5000,
 ):
     """
     Fetch climate records within a geographic bounding box.
@@ -73,22 +78,36 @@ async def get_records_by_region(
     db : async session
     lat_min, lon_min : south-west corner
     lat_max, lon_max : north-east corner
-    limit : max rows to return (default 1000)
+    limit : max rows to return (default 5000)
 
     Returns
     -------
-    List of ClimateRecord instances, ordered by timestamp DESC.
+    List of ClimateRecord instances, ordered by id to give a
+    spatially-spread sample across the entire bounding box.
     """
-    result = await db.execute(
-        select(ClimateRecord)
+    from sqlalchemy import func
+
+    # Use a subquery to pick the latest record per unique (lat, lon).
+    # This ensures even coverage across all of India instead of
+    # clustering at one geographic extreme.
+    subq = (
+        select(
+            func.max(ClimateRecord.id).label("max_id")
+        )
         .where(
             ClimateRecord.latitude >= lat_min,
             ClimateRecord.latitude <= lat_max,
             ClimateRecord.longitude >= lon_min,
             ClimateRecord.longitude <= lon_max,
         )
-        .order_by(ClimateRecord.timestamp.desc())
+        .group_by(ClimateRecord.latitude, ClimateRecord.longitude)
         .limit(limit)
+        .subquery()
+    )
+
+    result = await db.execute(
+        select(ClimateRecord)
+        .where(ClimateRecord.id == subq.c.max_id)
     )
 
     return result.scalars().all()
