@@ -48,29 +48,36 @@ export default function ClimateChart({ lat, lon }: Props) {
       }
     };
 
-    if (lat && lon) fetchData();
+    if (lat && lon) {
+      void fetchData();
+    }
   }, [lat, lon]);
 
-  if (loading) {
-    return (
-      <div className="glass-card-static p-6 h-[380px] flex flex-col items-center justify-center gap-3">
-        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-        <span className="text-slate-500 text-sm">Loading historical data...</span>
+  const renderState = (title: string, description: string, icon: React.ReactNode) => (
+    <div className="flex h-[380px] flex-col items-center justify-center gap-3 rounded-[24px] border border-slate-800/70 bg-slate-900/50 p-6 text-center backdrop-blur-xl">
+      <div className="rounded-2xl border border-slate-800/70 bg-slate-950/70 p-3 text-cyan-400">
+        {icon}
       </div>
+      <div>
+        <p className="text-sm font-semibold text-slate-200">{title}</p>
+        <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+      </div>
+    </div>
+  );
+
+  if (loading) {
+    return renderState(
+      "Loading historical data",
+      "Preparing the last 90 days of climate signals for this location.",
+      <Loader2 className="h-7 w-7 animate-spin" />
     );
   }
 
   if (error || data.length === 0) {
-    return (
-      <div className="glass-card-static p-6 h-[380px] flex flex-col items-center justify-center gap-3">
-        <DatabaseZap className="w-10 h-10 text-slate-600" />
-        <div className="text-center">
-          <p className="text-slate-400 font-semibold">No historical data</p>
-          <p className="text-slate-600 text-sm mt-1">
-            Click a station on the map to load time-series data
-          </p>
-        </div>
-      </div>
+    return renderState(
+      "No historical data",
+      "Select a station on the map to load the 90-day trend for that point.",
+      <DatabaseZap className="h-7 w-7" />
     );
   }
 
@@ -85,40 +92,29 @@ export default function ClimateChart({ lat, lon }: Props) {
   }));
 
   return (
-    <div className="glass-card-static p-5 h-[380px] flex flex-col">
-      <div className="flex justify-between items-center mb-4">
+    <div className="flex h-[380px] flex-col rounded-[24px] border border-slate-800/70 bg-slate-900/50 p-5 backdrop-blur-xl">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400">
-            <TrendingUp className="w-5 h-5" />
+          <div className="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2 text-indigo-400">
+            <TrendingUp className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">
-              90-Day Historical Trend
-            </h3>
+            <h3 className="text-sm font-semibold text-white">90-Day Historical Trend</h3>
             <p className="text-[11px] text-slate-500">
               {lat.toFixed(2)}°N, {lon.toFixed(2)}°E • {chartData.length} records
             </p>
           </div>
         </div>
-        <span className="px-2.5 py-1 text-[10px] font-bold bg-indigo-500/10 text-indigo-400 rounded-md border border-indigo-500/20">
+        <span className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-2.5 py-1 text-[10px] font-semibold text-indigo-300">
           IMD + INSAT
         </span>
       </div>
 
-      <div className="flex-1 min-h-0">
+      <div className="min-h-0 flex-1">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={chartData}
-            margin={{ top: 5, right: 0, left: -20, bottom: 5 }}
-          >
+          <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -18, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis
-              dataKey="date"
-              stroke="#475569"
-              fontSize={10}
-              tickMargin={8}
-              minTickGap={20}
-            />
+            <XAxis dataKey="date" stroke="#475569" fontSize={10} tickMargin={8} minTickGap={20} />
             <YAxis
               yAxisId="temp"
               stroke="#475569"
@@ -155,33 +151,9 @@ export default function ClimateChart({ lat, lon }: Props) {
               itemStyle={{ color: "#e2e8f0" }}
             />
             <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }} />
-            <Bar
-              yAxisId="rain"
-              dataKey="rainfall"
-              name="Rainfall"
-              fill="#10b981"
-              barSize={6}
-              opacity={0.7}
-              radius={[2, 2, 0, 0]}
-            />
-            <Line
-              yAxisId="temp"
-              type="monotone"
-              dataKey="tmax"
-              name="Max Temp"
-              stroke="#ef4444"
-              strokeWidth={2}
-              dot={false}
-            />
-            <Line
-              yAxisId="temp"
-              type="monotone"
-              dataKey="tmin"
-              name="Min Temp"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={false}
-            />
+            <Bar yAxisId="rain" dataKey="rainfall" name="Rainfall" fill="#10b981" barSize={6} opacity={0.75} radius={[2, 2, 0, 0]} />
+            <Line yAxisId="temp" type="monotone" dataKey="tmax" name="Max Temp" stroke="#ef4444" strokeWidth={2.2} dot={false} />
+            <Line yAxisId="temp" type="monotone" dataKey="tmin" name="Min Temp" stroke="#3b82f6" strokeWidth={2.2} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

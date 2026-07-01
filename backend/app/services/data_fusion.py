@@ -37,6 +37,7 @@ VARIABLE_CONFIG = {
         "imd_source": "IMD-TEMP",
         "sat_source": "INSAT_LST",
         "column": "temperature_max",
+        "sat_column": "temperature",
     },
     "tmin": {
         "imd_source": "IMD-TEMP",
@@ -190,8 +191,9 @@ async def get_fused_value(
     # Query satellite value
     satellite_value = None
     if sat_source is not None:
+        sat_col = config.get("sat_column", column)
         satellite_value = await _query_nearest_value(
-            db, lat, lon, date, sat_source, column
+            db, lat, lon, date, sat_source, sat_col
         )
 
     # Auto-select strategy based on data availability
@@ -282,10 +284,13 @@ async def get_fused_timeseries(
     # ── Batch-query satellite values ────────────────────────────
     sat_by_day: dict = {}
     if sat_source is not None:
+        sat_col = config.get("sat_column", column)
+        sat_col_attr = getattr(ClimateRecord, sat_col)
+        
         sat_result = await db.execute(
             select(
                 cast(ClimateRecord.timestamp, Date).label("day"),
-                col_attr.label("value"),
+                sat_col_attr.label("value"),
             )
             .where(
                 ClimateRecord.source == sat_source,

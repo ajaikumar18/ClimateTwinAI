@@ -1,66 +1,72 @@
 import React, { Suspense } from "react";
-import { BrowserRouter as Router, Routes, Route, NavLink, Navigate } from "react-router-dom";
-import { CloudRain, LayoutDashboard, FlaskConical } from "lucide-react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  NavLink,
+  Navigate,
+  useLocation,
+} from "react-router-dom";
+import { CloudRain, LayoutDashboard, FlaskConical, Sparkles } from "lucide-react";
 import ClimateDashboard from "./pages/ClimateDashboard";
 
 const SimulatePage = React.lazy(() => import("./pages/SimulatePage"));
 
-function App() {
+function AppShell() {
+  const location = useLocation();
+
   return (
-    <Router>
-      {/* ── Glassmorphic Navbar ────────────────── */}
-      <nav className="glass-nav sticky top-0 z-50 px-6 py-3">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between">
-          {/* Logo & Brand */}
-          <NavLink to="/" className="flex items-center gap-3 group">
-            <div className="relative p-2 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 rounded-xl border border-cyan-500/20 group-hover:border-cyan-400/40 transition-all duration-300">
-              <CloudRain className="w-6 h-6 text-cyan-400 animate-float" />
-              <div className="absolute inset-0 rounded-xl bg-cyan-400/10 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <>
+      <nav className="glass-nav sticky top-0 z-50 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3">
+          <NavLink to="/" className="group flex items-center gap-3">
+            <div className="relative rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 p-2.5 shadow-[0_0_30px_rgba(34,211,238,0.1)] transition-all duration-300 group-hover:border-cyan-400/40 group-hover:shadow-[0_0_40px_rgba(34,211,238,0.16)]">
+              <CloudRain className="h-6 w-6 animate-float text-cyan-400" />
+              <span className="absolute inset-0 rounded-2xl bg-cyan-400/10 opacity-0 blur-md transition-opacity duration-500 group-hover:opacity-100" />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent leading-tight">
+              <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-blue-400 bg-clip-text text-lg font-semibold leading-tight text-transparent">
                 ClimateTwin AI
               </span>
-              <span className="text-[10px] text-slate-500 font-medium tracking-wider uppercase">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                 Digital Twin Platform
               </span>
             </div>
           </NavLink>
 
-          {/* Navigation Links */}
-          <div className="flex items-center gap-2">
+          <div className="hidden items-center gap-2 rounded-full border border-slate-800/80 bg-slate-900/60 p-1.5 shadow-inner sm:flex">
             <NavLink
               to="/dashboard"
               className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                `flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                   isActive
-                    ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                    ? "bg-cyan-500/10 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.1)]"
+                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
                 }`
               }
             >
-              <LayoutDashboard className="w-4 h-4" />
+              <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </NavLink>
 
             <NavLink
               to="/simulate"
               className={({ isActive }) =>
-                `flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
+                `flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                   isActive
-                    ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 shadow-[0_0_20px_rgba(52,211,153,0.1)]"
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                    ? "bg-emerald-500/10 text-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.1)]"
+                    : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-200"
                 }`
               }
             >
-              <FlaskConical className="w-4 h-4" />
+              <FlaskConical className="h-4 w-4" />
               Simulator
             </NavLink>
           </div>
 
-          {/* Badge */}
-          <div className="relative overflow-hidden px-4 py-1.5 rounded-full border border-slate-700/50 bg-slate-800/50">
+          <div className="relative flex items-center gap-2 overflow-hidden rounded-full border border-slate-700/50 bg-slate-800/60 px-3 py-1.5">
             <div className="absolute inset-0 animate-shimmer" />
+            <Sparkles className="relative h-3.5 w-3.5 text-cyan-400" />
             <span className="relative text-xs font-semibold text-slate-400">
               Powered by <span className="text-cyan-400">IMD</span> + <span className="text-emerald-400">INSAT</span>
             </span>
@@ -68,25 +74,35 @@ function App() {
         </div>
       </nav>
 
-      {/* ── Routes ─────────────────────────────── */}
-      <main className="flex-1">
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center h-[60vh]">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-4 border-cyan-500/20 border-t-cyan-400 rounded-full animate-spin" />
-                <span className="text-slate-400 text-sm font-medium">Loading module...</span>
+      <main className="relative flex-1">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-cyan-500/5 to-transparent" />
+        <div className="animate-fade-in-up h-full">
+          <Suspense
+            fallback={
+              <div className="flex h-[60vh] items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="h-12 w-12 animate-spin rounded-full border-4 border-cyan-500/20 border-t-cyan-400" />
+                  <span className="text-sm font-medium text-slate-400">Loading module...</span>
+                </div>
               </div>
-            </div>
-          }
-        >
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/dashboard" element={<ClimateDashboard />} />
-            <Route path="/simulate" element={<SimulatePage />} />
-          </Routes>
-        </Suspense>
+            }
+          >
+            <Routes location={location}>
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<ClimateDashboard />} />
+              <Route path="/simulate" element={<SimulatePage />} />
+            </Routes>
+          </Suspense>
+        </div>
       </main>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppShell />
     </Router>
   );
 }

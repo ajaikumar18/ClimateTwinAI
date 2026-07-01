@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── Global Reset & Dark Theme ──────────────────────────── */
+/* ── Global Reset & Full-Width Dark Theme ─────────────────── */
 :root {
   --bg-deep: #030712;
   --bg-card: rgba(15, 23, 42, 0.7);
@@ -8,7 +8,7 @@
   --accent-cyan: #22d3ee;
   --accent-emerald: #34d399;
 
-  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -20,13 +20,22 @@
   box-sizing: border-box;
 }
 
-html, body {
+html {
+  background: var(--bg-deep);
+  min-height: 100%;
+}
+
+body {
   margin: 0;
   padding: 0;
-  background: var(--bg-deep);
-  color: #e2e8f0;
   min-height: 100vh;
   overflow-x: hidden;
+  color: #e2e8f0;
+  background:
+    radial-gradient(circle at top left, rgba(34, 211, 238, 0.08), transparent 28%),
+    radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 24%),
+    var(--bg-deep);
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 #root {
@@ -35,6 +44,7 @@ html, body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  isolation: isolate;
 }
 
 /* ── Custom Scrollbar ───────────────────────────────────── */
@@ -43,14 +53,14 @@ html, body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #020617;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: linear-gradient(180deg, #334155, #475569);
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: linear-gradient(180deg, #475569, #64748b);
 }
 
 /* ── Animations ─────────────────────────────────────────── */
@@ -66,35 +76,54 @@ html, body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(34, 211, 238, 0.1),
-                0 0 60px rgba(34, 211, 238, 0.05);
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.12), 0 0 60px rgba(34, 211, 238, 0.06);
   }
   50% {
-    box-shadow: 0 0 30px rgba(34, 211, 238, 0.2),
-                0 0 80px rgba(34, 211, 238, 0.1);
+    box-shadow: 0 0 30px rgba(34, 211, 238, 0.2), 0 0 90px rgba(34, 211, 238, 0.1);
   }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes border-glow-pulse {
-  0%, 100% { border-color: rgba(56, 189, 248, 0.15); }
-  50% { border-color: rgba(56, 189, 248, 0.35); }
+  0%,
+  100% {
+    border-color: rgba(56, 189, 248, 0.15);
+  }
+  50% {
+    border-color: rgba(56, 189, 248, 0.35);
+  }
 }
 
 /* ── Utility Classes ────────────────────────────────────── */
@@ -123,7 +152,7 @@ html, body {
 }
 
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
 }
@@ -142,15 +171,14 @@ html, body {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.12);
   border-radius: 16px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-card:hover {
-  border-color: rgba(56, 189, 248, 0.25);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3),
-              0 0 60px rgba(34, 211, 238, 0.05);
+  border-color: rgba(56, 189, 248, 0.28);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 70px rgba(34, 211, 238, 0.06);
   transform: translateY(-2px);
 }
 
@@ -158,7 +186,7 @@ html, body {
   background: rgba(15, 23, 42, 0.6);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.12);
   border-radius: 16px;
 }
 
@@ -167,6 +195,12 @@ html, body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(56, 189, 248, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.glass-nav:hover {
+  border-bottom-color: rgba(56, 189, 248, 0.3);
 }
 
 /* ── Map Popup Overrides ────────────────────────────────── */
@@ -199,34 +233,45 @@ html, body {
 
 /* ── Stat Card Accent Strips ────────────────────────────── */
 .stat-card-temp::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 3px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
   background: linear-gradient(90deg, #ef4444, #f97316);
   border-radius: 16px 16px 0 0;
 }
+
 .stat-card-rain::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 3px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
   background: linear-gradient(90deg, #3b82f6, #06b6d4);
   border-radius: 16px 16px 0 0;
 }
+
 .stat-card-humidity::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 3px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
   background: linear-gradient(90deg, #06b6d4, #22d3ee);
   border-radius: 16px 16px 0 0;
 }
+
 .stat-card-stations::before {
-  content: '';
+  content: "";
   position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 3px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
   background: linear-gradient(90deg, #10b981, #34d399);
   border-radius: 16px 16px 0 0;
 }
@@ -235,8 +280,9 @@ html, body {
 .icon-glow {
   position: relative;
 }
+
 .icon-glow::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: -4px;
   border-radius: 12px;

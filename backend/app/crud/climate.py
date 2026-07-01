@@ -1,7 +1,8 @@
+import math
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.climate_record import ClimateRecord
@@ -85,29 +86,38 @@ async def get_records_by_region(
     List of ClimateRecord instances, ordered by id to give a
     spatially-spread sample across the entire bounding box.
     """
-    from sqlalchemy import func
+    # Use a coarse spatial grid so the sample is spread across the box rather
+    # than over-favoring one dense region. The bucket count is derived from the
+    # requested limit so the result stays balanced and still respects the API.
+    safe_limit = max(1, int(limit))
+    bucket_count = max(1, int(math.sqrt(safe_limit)))
 
-    # Use a subquery to pick the latest record per unique (lat, lon).
-    # This ensures even coverage across all of India instead of
-    # clustering at one geographic extreme.
+    lat_span = max(lat_max - lat_min, 1e-6)
+    lon_span = max(lon_max - lon_min, 1e-6)
+
+    lat_bucket_size = lat_span / bucket_count
+    lon_bucket_size = lon_span / bucket_count
+
+    lat_bucket = func.floor((ClimateRecord.latitude - lat_min) / lat_bucket_size)
+    lon_bucket = func.floor((ClimateRecord.longitude - lon_min) / lon_bucket_size)
+
     subq = (
-        select(
-            func.max(ClimateRecord.id).label("max_id")
-        )
+        select(func.max(ClimateRecord.id).label("max_id"))
         .where(
             ClimateRecord.latitude >= lat_min,
             ClimateRecord.latitude <= lat_max,
             ClimateRecord.longitude >= lon_min,
             ClimateRecord.longitude <= lon_max,
         )
-        .group_by(ClimateRecord.latitude, ClimateRecord.longitude)
-        .limit(limit)
+        .group_by(lat_bucket, lon_bucket)
         .subquery()
     )
 
     result = await db.execute(
         select(ClimateRecord)
         .where(ClimateRecord.id == subq.c.max_id)
+        .order_by(ClimateRecord.latitude.asc(), ClimateRecord.longitude.asc())
+        .limit(safe_limit)
     )
 
     return result.scalars().all()

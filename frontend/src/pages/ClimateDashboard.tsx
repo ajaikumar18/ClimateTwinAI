@@ -10,6 +10,8 @@ import {
   Droplets,
   RadioTower,
   MapPin,
+  Sparkles,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function ClimateDashboard() {
@@ -31,7 +33,7 @@ export default function ClimateDashboard() {
         setLoading(false);
       }
     };
-    fetchClimateData();
+    void fetchClimateData();
   }, []);
 
   const avgTemp =
@@ -91,46 +93,49 @@ export default function ClimateDashboard() {
 
   return (
     <div className="min-h-screen bg-[#030712] text-white">
-      <div className="max-w-[1400px] mx-auto px-6 py-8 space-y-8">
-        {/* ── Hero Section ─────────────────────── */}
-        <div className="animate-fade-in-up">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+      <div className="mx-auto flex max-w-[1400px] flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">
+        <section className="animate-fade-in-up rounded-[28px] border border-slate-800/70 bg-slate-900/50 p-6 shadow-[0_0_60px_rgba(34,211,238,0.06)] backdrop-blur-xl sm:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-2xl">
+              <div className="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-400">
+                <Sparkles className="h-3.5 w-3.5" />
+                Climate Intelligence Layer
+              </div>
+              <h1 className="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-3xl font-semibold text-transparent sm:text-4xl">
                 Climate Dashboard
               </h1>
-              <p className="text-slate-500 mt-1">
-                Real-time climate intelligence across India • 5,600+ stations
+              <p className="mt-3 text-sm leading-7 text-slate-500 sm:text-base">
+                Monitor real-time climate conditions across India with a unified view of observations, forecasts, and scenario insights.
               </p>
             </div>
-            {selectedLocation && (
-              <div className="glass-card-static px-4 py-2 flex items-center gap-2 text-sm">
-                <MapPin className="w-4 h-4 text-cyan-400" />
-                <span className="text-slate-400">Selected:</span>
-                <span className="font-semibold text-cyan-300">
-                  {selectedLocation.lat.toFixed(2)}°N,{" "}
-                  {selectedLocation.lon.toFixed(2)}°E
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* ── Stat Cards ──────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {statCards.map((card, i) => (
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-800/70 bg-slate-950/70 p-3">
+              <div className="flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm text-emerald-300">
+                <ShieldCheck className="h-4 w-4" />
+                Live data sync
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-sm text-cyan-300">
+                <MapPin className="h-4 w-4" />
+                {selectedLocation.lat.toFixed(2)}°N, {selectedLocation.lon.toFixed(2)}°E
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {statCards.map((card, index) => (
             <div
               key={card.label}
-              className={`relative glass-card p-5 flex items-center gap-4 overflow-hidden animate-fade-in-up-delay-${i + 1} ${card.cssClass}`}
+              className={`relative flex items-center gap-4 overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-900/60 p-5 backdrop-blur-xl animate-fade-in-up-delay-${index + 1} ${card.cssClass}`}
             >
-              <div className={`${card.bgColor} p-3 rounded-xl ${card.color} icon-glow`}>
+              <div className={`${card.bgColor} rounded-xl p-3 ${card.color} icon-glow`}>
                 <card.icon size={22} />
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">
                   {card.label}
                 </p>
-                <h3 className="text-2xl font-bold text-white mt-0.5">
+                <h3 className="mt-0.5 text-2xl font-semibold text-white">
                   {card.value}
                 </h3>
               </div>
@@ -138,24 +143,16 @@ export default function ClimateDashboard() {
           ))}
         </div>
 
-        {/* ── Map Section ─────────────────────── */}
-        <ClimateMap
-          onLocationSelect={(lat, lon) => setSelectedLocation({ lat, lon })}
-        />
+        <div className="rounded-[28px] border border-slate-800/70 bg-slate-900/40 p-3 shadow-[0_0_80px_rgba(2,8,23,0.4)] backdrop-blur-xl sm:p-4">
+          <ClimateMap onLocationSelect={(lat, lon) => setSelectedLocation({ lat, lon })} />
+        </div>
 
-        {/* ── Analytics Section ────────────────── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-12">
+        <div className="grid grid-cols-1 gap-6 pb-12 xl:grid-cols-2">
           <div className="animate-fade-in-up-delay-3">
-            <ClimateChart
-              lat={selectedLocation.lat}
-              lon={selectedLocation.lon}
-            />
+            <ClimateChart lat={selectedLocation.lat} lon={selectedLocation.lon} />
           </div>
           <div className="animate-fade-in-up-delay-4">
-            <ForecastPanel
-              lat={selectedLocation.lat}
-              lon={selectedLocation.lon}
-            />
+            <ForecastPanel lat={selectedLocation.lat} lon={selectedLocation.lon} />
           </div>
         </div>
       </div>

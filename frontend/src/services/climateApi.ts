@@ -4,6 +4,13 @@ const api = axios.create({
   baseURL: "http://127.0.0.1:8000/api/v1",
 });
 
+interface PredictionPayload {
+  date: string;
+  predicted_value: number;
+  lower_bound: number;
+  upper_bound: number;
+}
+
 export const getClimateRecords = async () => {
   const response = await api.get("/climate");
   return response.data;
@@ -44,31 +51,32 @@ export const getForecast = async (lat: number, lon: number): Promise<ForecastRes
       api.post("/predict", { lat, lon, variable: "tmin" }),
     ]);
 
-    const rainData = rainRes.data.forecast || [];
-    const tmaxData = tmaxRes.data.forecast || [];
-    const tminData = tminRes.data.forecast || [];
+    const rainData: PredictionPayload[] = rainRes.data.forecast || [];
+    const tmaxData: PredictionPayload[] = tmaxRes.data.forecast || [];
+    const tminData: PredictionPayload[] = tminRes.data.forecast || [];
 
-    // Stitch the 3 arrays together by index
-    const merged: ForecastResponse[] = rainData.map((day: any, i: number) => {
-      const maxDay = tmaxData[i] || {};
-      const minDay = tminData[i] || {};
+    const merged: ForecastResponse[] = rainData.map((day, i) => {
+      const maxDay = tmaxData[i];
+      const minDay = tminData[i];
       return {
         date: day.date,
         rainfall: day.predicted_value,
         rainfall_lower: day.lower_bound,
         rainfall_upper: day.upper_bound,
-        tmax: maxDay.predicted_value || 0,
-        tmax_lower: maxDay.lower_bound || 0,
-        tmax_upper: maxDay.upper_bound || 0,
-        tmin: minDay.predicted_value || 0,
-        tmin_lower: minDay.lower_bound || 0,
-        tmin_upper: minDay.upper_bound || 0,
+        tmax: maxDay?.predicted_value ?? 0,
+        tmax_lower: maxDay?.lower_bound ?? 0,
+        tmax_upper: maxDay?.upper_bound ?? 0,
+        tmin: minDay?.predicted_value ?? 0,
+        tmin_lower: minDay?.lower_bound ?? 0,
+        tmin_upper: minDay?.upper_bound ?? 0,
       };
     });
     return merged;
   } catch (error) {
     console.error("Forecast API Error:", error);
-    return [];
+    throw new Error("Prediction service is unavailable right now. Please try again shortly.", {
+      cause: error,
+    });
   }
 };
 
